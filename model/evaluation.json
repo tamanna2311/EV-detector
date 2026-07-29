@@ -1,0 +1,59 @@
+{
+  "method": "Each non-EV file is scored by a model that excluded it; EV test-folder files are scored by the final train-folder-only model.",
+  "file_level_rows": [
+    {
+      "file": "non_ev_5C0KATW5.csv",
+      "true_label": "NON_EV",
+      "evaluation": "leave-one-non-ev-recording-out",
+      "non_ev_probability": 0.7761229285198431,
+      "predicted_label": "NON_EV"
+    },
+    {
+      "file": "non_ev_8JWMGUL5.csv",
+      "true_label": "NON_EV",
+      "evaluation": "leave-one-non-ev-recording-out",
+      "non_ev_probability": 0.987589951140208,
+      "predicted_label": "NON_EV"
+    },
+    {
+      "file": "non_ev_DE0MT6CB.csv",
+      "true_label": "NON_EV",
+      "evaluation": "leave-one-non-ev-recording-out",
+      "non_ev_probability": 0.9449025449169267,
+      "predicted_label": "NON_EV"
+    },
+    {
+      "file": "ev_CWX1FEZD.csv",
+      "true_label": "EV",
+      "evaluation": "independent-test-folder",
+      "non_ev_probability": 0.006242275940654161,
+      "predicted_label": "EV"
+    },
+    {
+      "file": "ev_NHU82TLS.csv",
+      "true_label": "EV",
+      "evaluation": "independent-test-folder",
+      "non_ev_probability": 0.018427567941333364,
+      "predicted_label": "EV"
+    },
+    {
+      "file": "ev_RUQ24CUF.csv",
+      "true_label": "EV",
+      "evaluation": "independent-test-folder",
+      "non_ev_probability": 0.004665435401670122,
+      "predicted_label": "EV"
+    }
+  ],
+  "file_level_confusion_matrix_ev_non_ev": [
+    [
+      3,
+      0
+    ],
+    [
+      0,
+      3
+    ]
+  ],
+  "file_level_balanced_accuracy": 1.0,
+  "warning": "Only 7 recordings were supplied (1 train EV, 3 train non-EV, 3 test EV). This result is a pipeline check, not a population-level accuracy estimate."
+}

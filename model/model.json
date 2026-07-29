@@ -1,0 +1,84 @@
+{
+  "model_version": "spectral-logreg-1.0.0",
+  "created_at": "2026-07-29T01:58:32.035618+00:00",
+  "method": "paper-inspired FFT features plus regularized logistic regression",
+  "positive_class": "NON_EV",
+  "feature_names": [
+    "log_hf_rms",
+    "log_hf_max",
+    "log_hf_p95",
+    "log_peak_to_median",
+    "spike_fraction",
+    "spectral_entropy",
+    "log_low_frequency_rms",
+    "log_high_to_low_ratio"
+  ],
+  "scaler": {
+    "mean": [
+      1.0855564435100498,
+      2.1742392395947823,
+      1.3406678385447535,
+      2.690469129641693,
+      0.049568037877389906,
+      0.669691544979874,
+      0.44306766173743584,
+      1.525177852404921
+    ],
+    "scale": [
+      0.7406054684062949,
+      1.390762696896961,
+      0.8310920239375351,
+      1.2882041259933252,
+      0.05194235179814771,
+      0.2413060971944019,
+      0.40258631376054416,
+      0.8854377544881297
+    ]
+  },
+  "classifier": {
+    "type": "logistic_regression",
+    "coefficients": [
+      0.4913531464719232,
+      0.724759440328573,
+      1.0673966786321067,
+      0.2683403889672942,
+      0.5876354962729466,
+      -0.1509526190224078,
+      -0.4328756313513295,
+      0.47320995768061563
+    ],
+    "intercept": -0.22105267220074284,
+    "regularization_c": 0.1
+  },
+  "training_data": [
+    {
+      "file": "ev_GDDRPRP3.csv",
+      "label": "EV",
+      "windows": 139,
+      "sha256": "01fe55a08a9a746a24ddfdd684eb8ae2716e763c0ef9e180a47dc9e381d55a84"
+    },
+    {
+      "file": "non_ev_5C0KATW5.csv",
+      "label": "NON_EV",
+      "windows": 139,
+      "sha256": "44219f9dea21b51b1a454c27e46c7cac8e53ae188ef44143b8d27a9c9270537c"
+    },
+    {
+      "file": "non_ev_8JWMGUL5.csv",
+      "label": "NON_EV",
+      "windows": 139,
+      "sha256": "2a41f8518e86dc3513a34b5ac93ed4dac8d2515a21438f4cf5802aac3146f95d"
+    },
+    {
+      "file": "non_ev_DE0MT6CB.csv",
+      "label": "NON_EV",
+      "windows": 139,
+      "sha256": "384cd87f462b9aefecb15476c8ea6f6de5b3040f71cb87213988371c098b9d77"
+    }
+  ],
+  "limitations": [
+    "The supplied training set has only one EV and three non-EV recordings.",
+    "The model detects combustion-engine vibration; hybrids and engine auto-stop can confuse it.",
+    "Predictions require stop or near-stop periods and at least 50 Hz sampling."
+  ]
+}

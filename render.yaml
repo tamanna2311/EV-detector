@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: ev-detector
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "60"
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: ALLOWED_HOSTS
+        value: "*"
