@@ -6,6 +6,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from app.config import settings
+
 FiniteAcceleration = Annotated[float, Field(ge=-200, le=200)]
 
 
@@ -37,7 +39,9 @@ class PredictionContext(BaseModel):
 class PredictionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    samples: list[AccelerometerSample] = Field(min_length=128, max_length=100_000)
+    samples: list[AccelerometerSample] = Field(
+        min_length=128, max_length=settings.max_json_samples
+    )
     sample_rate_hz: float | None = Field(
         default=None,
         ge=1,

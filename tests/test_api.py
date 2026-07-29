@@ -38,6 +38,9 @@ def test_health_and_metadata(client: TestClient) -> None:
     metadata = client.get("/api/v1/meta")
     assert metadata.status_code == 200
     assert metadata.json()["collection"]["recommended_sample_rate_hz"] == 100
+    assert metadata.json()["limits"]["max_csv_samples"] == 1_000_000
+    assert metadata.json()["limits"]["max_json_samples"] == 100_000
+    assert metadata.json()["limits"]["max_request_bytes"] == 128 * 1024 * 1024
 
 
 def test_json_predictions_separate_synthetic_signals(client: TestClient) -> None:

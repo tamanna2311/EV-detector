@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import dataclass
-from math import ceil
+from math import ceil, isfinite
 
 import numpy as np
 from numpy.typing import NDArray
@@ -71,20 +71,30 @@ def _clock_seconds(value: str) -> float:
     return hours * 3600 + minutes * 60 + seconds
 
 
+def parse_timestamp_value(value: str | float | int) -> float:
+    """Parse one numeric or clock timestamp without applying day unwrapping."""
+
+    try:
+        if isinstance(value, str) and ":" in value:
+            return _clock_seconds(value)
+        result = float(value)
+    except (TypeError, ValueError) as exc:
+        raise SignalValidationError(f"Invalid timestamp: {value!r}.") from exc
+    if not isfinite(result):
+        raise SignalValidationError("Timestamps must all be finite.")
+    return result
+
+
 def normalize_timestamps(values: Iterable[str | float | int]) -> NDArray[np.float64]:
     """Parse numeric or clock timestamps and unwrap a midnight crossing."""
 
-    parsed: list[float] = []
-    for value in values:
-        try:
-            if isinstance(value, str) and ":" in value:
-                parsed.append(_clock_seconds(value))
-            else:
-                parsed.append(float(value))
-        except (TypeError, ValueError) as exc:
-            raise SignalValidationError(f"Invalid timestamp: {value!r}.") from exc
-
-    result = np.asarray(parsed, dtype=np.float64)
+    if isinstance(values, np.ndarray) and np.issubdtype(values.dtype, np.number):
+        result = np.asarray(values, dtype=np.float64).copy()
+    else:
+        result = np.fromiter(
+            (parse_timestamp_value(value) for value in values),
+            dtype=np.float64,
+        )
     if not np.all(np.isfinite(result)):
         raise SignalValidationError("Timestamps must all be finite.")
 

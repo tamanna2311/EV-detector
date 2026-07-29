@@ -39,11 +39,32 @@ def predict_request(
         if request.samples[0].timestamp is not None
         else None
     )
-    segments = build_segments(values, timestamps, request.sample_rate_hz)
-    features = extract_window_features(segments)
-    output = predictor.predict(
-        features, known_stationary=request.context.vehicle_stationary
+    return predict_signal(
+        values=values,
+        timestamps=timestamps,
+        sample_rate_hz=request.sample_rate_hz,
+        known_stationary=request.context.vehicle_stationary,
+        samples_received=len(request.samples),
+        predictor=predictor,
+        request_id=request_id,
     )
+
+
+def predict_signal(
+    *,
+    values: np.ndarray,
+    timestamps: np.ndarray | None,
+    sample_rate_hz: float | None,
+    known_stationary: bool,
+    samples_received: int,
+    predictor: SpectralPredictor,
+    request_id: str,
+) -> PredictionResponse:
+    """Predict directly from compact numeric arrays."""
+
+    segments = build_segments(values, timestamps, sample_rate_hz)
+    features = extract_window_features(segments)
+    output = predictor.predict(features, known_stationary=known_stationary)
     selected = output.selected_indices
 
     return PredictionResponse(
@@ -57,7 +78,7 @@ def predict_request(
         caveats=output.caveats,
         model_version=predictor.version,
         analysis=AnalysisSummary(
-            samples_received=len(request.samples),
+            samples_received=samples_received,
             samples_analyzed=features.samples_analyzed,
             segment_count=features.segment_count,
             estimated_sample_rates_hz=[

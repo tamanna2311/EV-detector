@@ -5,17 +5,18 @@ from __future__ import annotations
 from typing import Annotated
 
 from fastapi import APIRouter, File, Form, Request, UploadFile
+from starlette.concurrency import run_in_threadpool
 
 from app import __version__
 from app.config import settings
-from app.csv_io import parse_accelerometer_csv
+from app.csv_io import CsvValidationError, parse_accelerometer_csv_stream
 from app.schemas import (
     ErrorResponse,
     HealthResponse,
     PredictionRequest,
     PredictionResponse,
 )
-from app.service import predict_request
+from app.service import predict_request, predict_signal
 
 router = APIRouter(prefix="/api/v1")
 
@@ -72,7 +73,8 @@ async def metadata(request: Request) -> dict:
             "csv_columns": ["x", "y", "z", "timestamp (optional with sample_rate_hz)"],
         },
         "limits": {
-            "max_samples": settings.max_samples,
+            "max_json_samples": settings.max_json_samples,
+            "max_csv_samples": settings.max_csv_samples,
             "max_request_bytes": settings.max_request_bytes,
             "rate_limit_per_minute": settings.rate_limit_per_minute,
         },
@@ -118,7 +120,7 @@ async def predict_json(
 )
 async def predict_csv(
     request: Request,
-    file: Annotated[UploadFile, File(description="Accelerometer CSV, maximum 10 MB.")],
+    file: Annotated[UploadFile, File(description="Accelerometer CSV, maximum 128 MB.")],
     sample_rate_hz: Annotated[
         float | None, Form(description="Required if timestamp is omitted.")
     ] = None,
@@ -131,10 +133,26 @@ async def predict_csv(
         ),
     ] = False,
 ) -> PredictionResponse:
-    content = await file.read(settings.max_request_bytes + 1)
-    payload = parse_accelerometer_csv(
-        content,
-        sample_rate_hz=sample_rate_hz,
-        vehicle_stationary=vehicle_stationary,
-    )
-    return predict_request(payload, request.app.state.predictor, _request_id(request))
+    if file.size is not None and file.size > settings.max_request_bytes:
+        raise CsvValidationError(
+            f"CSV exceeds the {settings.max_request_bytes // (1024 * 1024)} MB limit."
+        )
+    await file.seek(0)
+
+    def parse_and_predict() -> PredictionResponse:
+        payload = parse_accelerometer_csv_stream(
+            file.file,
+            sample_rate_hz=sample_rate_hz,
+            vehicle_stationary=vehicle_stationary,
+        )
+        return predict_signal(
+            values=payload.values,
+            timestamps=payload.timestamps,
+            sample_rate_hz=payload.sample_rate_hz,
+            known_stationary=payload.vehicle_stationary,
+            samples_received=payload.sample_count,
+            predictor=request.app.state.predictor,
+            request_id=_request_id(request),
+        )
+
+    return await run_in_threadpool(parse_and_predict)

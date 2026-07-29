@@ -63,12 +63,14 @@ Use `-F 'sample_rate_hz=200'` when the CSV does not include `timestamp`.
 - Timestamp: numeric seconds or `HH:MM:SS[.fraction]`
 - Minimum sample rate: 50 Hz
 - Recommended sample rate: 100–200 Hz
-- Maximum payload: 10 MB and 100,000 samples
+- Maximum CSV: 128 MB and 1,000,000 samples
+- Maximum JSON: 100,000 samples
 - Best recording: at least 30 seconds with one complete stop
 
-The service splits timestamp gaps, infers the sample rate per continuous
-segment, rejects incompatible inputs, and returns `INCONCLUSIVE` rather than
-forcing a binary answer near the decision boundary.
+CSV uploads are streamed into compact numeric arrays instead of constructing a
+Python object for every row. The service splits timestamp gaps, infers the
+sample rate per continuous segment, rejects incompatible inputs, and returns
+`INCONCLUSIVE` rather than forcing a binary answer near the decision boundary.
 
 ## How the model maps to the paper
 

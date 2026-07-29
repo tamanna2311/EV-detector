@@ -38,6 +38,9 @@ x,y,z,timestamp
 1.64895,4.86495,8.00805,07:03:40.02
 ```
 
+CSV uploads support up to 1,000,000 samples or 128 MB, whichever is reached
+first. JSON requests remain limited to 100,000 samples.
+
 ## Response
 
 ```json
