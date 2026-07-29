@@ -12,11 +12,13 @@ for combustion-engine vibration during stopped or near-stopped periods.
 
 ## Links
 
-- Live app: `https://ev-detector.onrender.com` (after deployment)
-- Swagger UI: `https://ev-detector.onrender.com/docs`
-- ReDoc: `https://ev-detector.onrender.com/redoc`
-- OpenAPI: `https://ev-detector.onrender.com/openapi.json`
+- Live app: <https://ev-detector.onrender.com>
+- Swagger UI: <https://ev-detector.onrender.com/docs>
+- ReDoc: <https://ev-detector.onrender.com/redoc>
+- OpenAPI: <https://ev-detector.onrender.com/openapi.json>
 - GitHub: <https://github.com/tamanna2311/EV-detector>
+- Render dashboard:
+  <https://dashboard.render.com/web/srv-d9km0ij7uimc73fkmp60>
 
 ## API
 
