@@ -1,0 +1,27 @@
+{
+  "id": "/",
+  "name": "EV Trace — Vehicle Signal Detector",
+  "short_name": "EV Trace",
+  "description": "Analyze mobile accelerometer data for combustion-engine vibration.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#020706",
+  "theme_color": "#020706",
+  "categories": ["utilities", "automotive"],
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "prefer_related_applications": false
+}

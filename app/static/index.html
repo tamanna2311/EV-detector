@@ -2,149 +2,202 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="EV vs non-EV detection from accelerometer data.">
-  <title>EV Detector</title>
-  <style>
-    :root {
-      --ink: #13221d; --muted: #5d6f67; --paper: #f4f1e8;
-      --card: #fffdf7; --green: #087f5b; --lime: #b8f34a; --line: #cfd8d2;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; color: var(--ink); background:
-        radial-gradient(circle at 82% 12%, #d9ffc1 0, transparent 31rem),
-        linear-gradient(160deg, var(--paper), #e6efe9);
-      font: 16px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
-    }
-    main { width: min(1120px, 92vw); margin: 0 auto; padding: 42px 0 70px; }
-    nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 72px; }
-    .brand { font-weight: 850; letter-spacing: -.04em; font-size: 1.2rem; }
-    nav a, .button {
-      color: var(--ink); text-decoration: none; border: 1px solid var(--ink);
-      border-radius: 999px; padding: 9px 15px; font-weight: 700;
-    }
-    .hero { display: grid; grid-template-columns: 1.35fr .65fr; gap: 48px; align-items: end; }
-    .eyebrow { color: var(--green); font-weight: 800; letter-spacing: .11em; text-transform: uppercase; font-size: .78rem; }
-    h1 { font-size: clamp(3.4rem, 8vw, 7.4rem); line-height: .88; letter-spacing: -.075em; margin: 15px 0 30px; max-width: 780px; }
-    .lead { font-size: clamp(1.05rem, 2vw, 1.35rem); color: var(--muted); max-width: 680px; }
-    .signal {
-      background: var(--ink); color: white; border-radius: 30px; padding: 28px;
-      box-shadow: 0 18px 50px #1f3f3022; overflow: hidden;
-    }
-    .signal svg { width: 100%; height: 150px; display: block; }
-    .signal strong { font-size: 2rem; letter-spacing: -.04em; }
-    .grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 24px; margin-top: 76px; }
-    .card { background: #fffdf7d9; border: 1px solid var(--line); border-radius: 28px; padding: 28px; backdrop-filter: blur(10px); }
-    h2 { font-size: 1.65rem; letter-spacing: -.04em; margin: 0 0 8px; }
-    p { margin: 0 0 18px; }
-    label { display: block; font-weight: 750; margin: 15px 0 7px; }
-    input[type=file], input[type=number] {
-      width: 100%; padding: 12px; border: 1px solid var(--line);
-      background: white; border-radius: 12px; font: inherit;
-    }
-    button {
-      width: 100%; border: 0; border-radius: 13px; padding: 14px;
-      background: var(--green); color: white; font: inherit; font-weight: 850;
-      cursor: pointer; margin-top: 16px;
-    }
-    button:disabled { opacity: .55; cursor: wait; }
-    .check { display: flex; align-items: center; gap: 9px; font-weight: 600; color: var(--muted); }
-    .check input { width: auto; }
-    #result { margin-top: 18px; min-height: 24px; }
-    .verdict { border-left: 5px solid var(--lime); padding: 8px 0 8px 16px; }
-    .verdict b { font-size: 2.5rem; letter-spacing: -.05em; display: block; }
-    .muted { color: var(--muted); }
-    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
-    .step { border-top: 2px solid var(--ink); padding-top: 12px; }
-    .step span { display: block; color: var(--green); font-weight: 850; }
-    code { background: #e9eee9; padding: 2px 5px; border-radius: 5px; }
-    footer { margin-top: 50px; display: flex; gap: 20px; flex-wrap: wrap; color: var(--muted); }
-    footer a { color: inherit; }
-    @media (max-width: 800px) {
-      nav { margin-bottom: 42px; } .hero, .grid { grid-template-columns: 1fr; }
-      .steps { grid-template-columns: 1fr; } .signal { order: -1; }
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#020706">
+  <meta name="description" content="Detect combustion-engine vibration using live mobile accelerometer data or an uploaded recording.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EV Trace">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+  <link rel="icon" href="/static/icons/icon-192.png">
+  <link rel="stylesheet" href="/static/styles.css">
+  <title>EV Trace — Live vehicle signal analysis</title>
 </head>
 <body>
-<main>
-  <nav>
-    <div class="brand">EV / SPECTRAL</div>
-    <a href="/docs">API docs ↗</a>
-  </nav>
+  <div class="scene" aria-hidden="true">
+    <div class="scene__aurora"></div>
+    <div class="scene__horizon"></div>
+    <div class="scene__road"></div>
+  </div>
 
-  <section class="hero">
-    <div>
-      <div class="eyebrow">Mobile sensing · research grounded</div>
-      <h1>Hear the engine through motion.</h1>
-      <p class="lead">Classify electric versus combustion-engine vehicles from phone accelerometer recordings—without relying on phone orientation.</p>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="EV Trace home">
+      <span class="brand__mark">E</span>
+      <span>EV<span class="accent">//</span>TRACE</span>
+    </a>
+    <div class="topbar__actions">
+      <span class="system-status"><i aria-hidden="true"></i> Model online</span>
+      <button class="nav-button" id="install-button" type="button" hidden>Install app</button>
+      <a class="nav-button nav-button--quiet" href="/docs">API docs <span aria-hidden="true">↗</span></a>
     </div>
-    <div class="signal">
-      <svg viewBox="0 0 420 150" role="img" aria-label="A stylized vibration spectrum">
-        <path d="M0 123 L15 121 28 126 40 119 53 124 70 116 84 123 101 120 118 125 130 118 143 123 160 121 176 31 188 122 205 120 219 124 236 117 250 121 269 52 280 122 300 118 319 123 338 120 360 124 380 119 400 123 420 121" fill="none" stroke="#b8f34a" stroke-width="4" stroke-linejoin="round"/>
-        <path d="M0 132 H420" stroke="#ffffff44"/>
-      </svg>
-      <span class="muted">Combustion signal</span><br>
-      <strong>Stable peaks &gt;19 Hz</strong>
-    </div>
-  </section>
+  </header>
 
-  <section class="grid">
-    <div class="card">
-      <h2>Try a recording</h2>
-      <p class="muted">CSV columns: <code>x,y,z,timestamp</code>. Up to 1,000,000 samples or 128 MB. Acceleration must be in m/s².</p>
-      <form id="upload-form">
-        <label for="file">Accelerometer CSV</label>
-        <input id="file" name="file" type="file" accept=".csv,text/csv" required>
-        <label for="sample-rate">Sample rate, Hz <span class="muted">(only if no timestamp)</span></label>
-        <input id="sample-rate" name="sample_rate_hz" type="number" min="50" max="1000" step="0.01" placeholder="200">
-        <label class="check"><input id="stationary" name="vehicle_stationary" type="checkbox"> Entire recording is from a stopped vehicle</label>
-        <button id="submit" type="submit">Analyze spectrum</button>
-      </form>
-      <div id="result" aria-live="polite"></div>
-    </div>
-    <div class="card">
-      <div class="eyebrow">Collection protocol</div>
-      <h2>Better data makes a safer decision.</h2>
-      <p>Record at 100–200 Hz for at least 30 seconds and include one complete stop. Keep the phone anywhere in the cabin or on the body; the magnitude transform removes orientation dependence.</p>
-      <div class="steps">
-        <div class="step"><span>01</span>Record continuously inside the vehicle.</div>
-        <div class="step"><span>02</span>Include an idle or near-idle period.</div>
-        <div class="step"><span>03</span>Treat low-quality results as inconclusive.</div>
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__copy">
+        <p class="eyebrow"><span>Live</span> vehicle signal analysis</p>
+        <h1 id="hero-title">Find the engine<br>inside the <em>noise.</em></h1>
+        <p class="hero__lead">Use your phone's motion sensor to look for the stable high-frequency vibration signature of a combustion engine—without relying on phone orientation.</p>
+        <div class="hero__actions">
+          <a class="primary-link" href="#live-recorder">Start a live scan <span aria-hidden="true">→</span></a>
+          <span class="privacy-note">Processed securely. Raw recordings are not stored.</span>
+        </div>
       </div>
-      <p class="muted" style="margin-top:24px">This model detects combustion-engine vibration. Hybrids, engine auto-stop, loud audio, fans, road vibration, and unseen devices can affect results.</p>
-    </div>
-  </section>
+
+      <div class="signal-stage" aria-label="Live acceleration signal preview">
+        <div class="signal-stage__header">
+          <div>
+            <span class="micro-label">Sensor stream</span>
+            <strong id="stream-label">Awaiting device</strong>
+          </div>
+          <span class="live-dot" id="live-dot">Standby</span>
+        </div>
+        <canvas id="signal-canvas" width="720" height="300" aria-label="Acceleration magnitude waveform"></canvas>
+        <div class="signal-stage__footer">
+          <span><b>19</b> Hz analysis floor</span>
+          <span><b>2.56</b> sec FFT windows</span>
+          <span><b>3</b> axes combined</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detector-grid" aria-label="Vehicle detector">
+      <article class="panel recorder-panel" id="live-recorder">
+        <div class="panel__number">01</div>
+        <div class="panel__heading">
+          <div>
+            <p class="eyebrow">Recommended</p>
+            <h2>Record on this device</h2>
+          </div>
+          <span class="support-badge" id="sensor-support">Checking sensor</span>
+        </div>
+        <p class="panel__intro">Place your phone securely inside a safely stopped vehicle with its engine in its normal state. Record for at least 30 seconds.</p>
+
+        <label class="safety-check" for="safety-confirmation">
+          <input id="safety-confirmation" type="checkbox">
+          <span class="custom-check" aria-hidden="true"></span>
+          <span>I confirm the vehicle is safely stopped and I will not handle the phone while driving.</span>
+        </label>
+
+        <div class="recording-console" id="recording-console">
+          <div class="recording-console__status">
+            <span class="record-pulse" aria-hidden="true"></span>
+            <div>
+              <span class="micro-label">Recording state</span>
+              <strong id="recording-state">Ready to begin</strong>
+            </div>
+          </div>
+          <div class="recording-stats" aria-live="polite">
+            <div><span>Duration</span><b id="duration-value">00:00</b></div>
+            <div><span>Samples</span><b id="sample-value">0</b></div>
+            <div><span>Rate</span><b id="rate-value">— Hz</b></div>
+          </div>
+          <div class="duration-track" aria-hidden="true"><i id="duration-progress"></i></div>
+          <p class="console-hint" id="recording-hint">Allow motion access when prompted. Your browser decides the available sampling rate.</p>
+        </div>
+
+        <div class="button-row">
+          <button class="action-button" id="start-recording" type="button" disabled>
+            <span class="button-icon" aria-hidden="true"></span>
+            Start recording
+          </button>
+          <button class="action-button action-button--stop" id="stop-recording" type="button" disabled>
+            <span class="stop-icon" aria-hidden="true"></span>
+            Stop &amp; analyze
+          </button>
+        </div>
+        <div class="result" id="live-result" aria-live="polite"></div>
+      </article>
+
+      <article class="panel upload-panel">
+        <div class="panel__number">02</div>
+        <div class="panel__heading">
+          <div>
+            <p class="eyebrow">Existing data</p>
+            <h2>Upload a recording</h2>
+          </div>
+          <span class="support-badge">CSV · 1M rows</span>
+        </div>
+        <p class="panel__intro">Already have accelerometer data? Upload <code>x,y,z,timestamp</code>, or provide the sample rate when timestamps are absent.</p>
+
+        <form id="upload-form">
+          <label class="file-drop" id="file-drop" for="file">
+            <input id="file" name="file" type="file" accept=".csv,text/csv" required>
+            <span class="file-drop__icon" aria-hidden="true">↑</span>
+            <strong id="file-name">Choose accelerometer CSV</strong>
+            <span id="file-detail">Up to 1,000,000 samples or 128 MB</span>
+          </label>
+
+          <div class="form-row">
+            <label>
+              <span>Sample rate <small>if no timestamp</small></span>
+              <span class="input-shell"><input id="sample-rate" name="sample_rate_hz" type="number" min="50" max="1000" step="0.01" placeholder="200"><i>Hz</i></span>
+            </label>
+            <label class="switch-label">
+              <span>Recording context</span>
+              <span class="switch-control">
+                <input id="stationary" name="vehicle_stationary" type="checkbox">
+                <i aria-hidden="true"></i>
+                Entirely stationary
+              </span>
+            </label>
+          </div>
+
+          <button class="action-button action-button--wide" id="upload-submit" type="submit">
+            Analyze uploaded signal <span aria-hidden="true">→</span>
+          </button>
+        </form>
+        <div class="result" id="upload-result" aria-live="polite"></div>
+      </article>
+    </section>
+
+    <section class="method" aria-labelledby="method-title">
+      <div class="method__heading">
+        <p class="eyebrow">What the model sees</p>
+        <h2 id="method-title">One signal. Three layers of evidence.</h2>
+        <p>The detector looks for combustion vibration; it does not directly identify a vehicle model or guarantee that a vehicle is electric.</p>
+      </div>
+      <div class="method__steps">
+        <article>
+          <span>01</span>
+          <b>Combine orientation</b>
+          <p>X, Y and Z become one orientation-independent acceleration magnitude.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <b>Find stable peaks</b>
+          <p>Overlapping FFT windows focus on persistent vibration above 19 Hz.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <b>Return uncertainty</b>
+          <p>Low-quality and out-of-distribution recordings can be marked inconclusive.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="limitations" aria-label="Important limitations">
+      <span class="limitations__icon" aria-hidden="true">!</span>
+      <div>
+        <b>Interpret the result carefully</b>
+        <p>Hybrids, engine auto-stop, loud audio, fans, road vibration, phones outside a vehicle and unseen devices can affect the result. “No combustion signal detected” is not proof that a vehicle is electric.</p>
+      </div>
+    </section>
+  </main>
 
   <footer>
-    <a href="/docs">Swagger</a><a href="/redoc">ReDoc</a>
-    <a href="/openapi.json">OpenAPI</a>
-    <a href="https://github.com/tamanna2311/EV-detector">GitHub</a>
+    <a class="brand brand--footer" href="/"><span class="brand__mark">E</span><span>EV<span class="accent">//</span>TRACE</span></a>
+    <p>Research-grounded mobile sensing for vehicle vibration analysis.</p>
+    <nav aria-label="Footer links">
+      <a href="/docs">Swagger</a>
+      <a href="/redoc">ReDoc</a>
+      <a href="/openapi.json">OpenAPI</a>
+      <a href="https://github.com/tamanna2311/EV-detector">GitHub</a>
+    </nav>
   </footer>
-</main>
-<script>
-  const form = document.getElementById("upload-form");
-  const result = document.getElementById("result");
-  const submit = document.getElementById("submit");
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    submit.disabled = true; result.innerHTML = '<span class="muted">Analyzing windows…</span>';
-    const data = new FormData();
-    data.append("file", document.getElementById("file").files[0]);
-    const rate = document.getElementById("sample-rate").value;
-    if (rate) data.append("sample_rate_hz", rate);
-    data.append("vehicle_stationary", document.getElementById("stationary").checked);
-    try {
-      const response = await fetch("/api/v1/predict/csv", { method: "POST", body: data });
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.error?.message || "Analysis failed.");
-      result.innerHTML = `<div class="verdict"><span class="muted">${body.decision_quality} decision quality</span><b>${body.prediction.replace("_", " ")}</b><span>${(body.confidence * 100).toFixed(1)}% model confidence · ${body.analysis.windows_selected} windows used</span></div>`;
-    } catch (error) {
-      result.innerHTML = `<div class="verdict"><b>Could not classify</b><span>${error.message}</span></div>`;
-    } finally { submit.disabled = false; }
-  });
-</script>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <script src="/static/app.js" defer></script>
 </body>
 </html>

@@ -43,6 +43,31 @@ def test_health_and_metadata(client: TestClient) -> None:
     assert metadata.json()["limits"]["max_request_bytes"] == 128 * 1024 * 1024
 
 
+def test_pwa_assets_and_sensor_policy(client: TestClient) -> None:
+    landing = client.get("/")
+    assert landing.status_code == 200
+    assert 'rel="manifest"' in landing.text
+    assert "accelerometer=(self)" in landing.headers["permissions-policy"]
+    assert "script-src 'self'" in landing.headers["content-security-policy"]
+
+    manifest = client.get("/manifest.webmanifest")
+    assert manifest.status_code == 200
+    assert manifest.headers["content-type"].startswith("application/manifest+json")
+    assert manifest.json()["display"] == "standalone"
+    assert {icon["sizes"] for icon in manifest.json()["icons"]} == {
+        "192x192",
+        "512x512",
+    }
+
+    service_worker = client.get("/service-worker.js")
+    assert service_worker.status_code == 200
+    assert service_worker.headers["service-worker-allowed"] == "/"
+    assert service_worker.headers["cache-control"] == "no-cache"
+
+    assert client.get("/static/styles.css").status_code == 200
+    assert client.get("/static/app.js").status_code == 200
+
+
 def test_json_predictions_separate_synthetic_signals(client: TestClient) -> None:
     ev = client.post(
         "/api/v1/predict",

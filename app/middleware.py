@@ -32,7 +32,8 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["Permissions-Policy"] = (
-            "accelerometer=(), camera=(), geolocation=(), microphone=()"
+            "accelerometer=(self), gyroscope=(self), camera=(), "
+            "geolocation=(), microphone=()"
         )
         return response
 

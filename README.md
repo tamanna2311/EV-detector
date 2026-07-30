@@ -4,6 +4,12 @@ Production-oriented EV vs non-EV classification from smartphone accelerometer
 recordings. The service uses orientation-independent spectral features to look
 for combustion-engine vibration during stopped or near-stopped periods.
 
+The mobile-first PWA can record accelerometer data directly on supported phones.
+It requests motion permission only after the user taps Start, prefers the
+high-resolution Generic Sensor API where available, and falls back to
+`DeviceMotionEvent` on browsers such as mobile Safari. The installed app shell
+works offline; prediction still requires a network connection to the API.
+
 > **Evidence boundary:** the supplied dataset contains only seven recordings:
 > one EV and three non-EVs for training, and three EVs for testing. The checked-in
 > evaluation verifies that this pipeline separates those recordings; it does not

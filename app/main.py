@@ -13,6 +13,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app import __version__
@@ -94,10 +95,40 @@ def create_app() -> FastAPI:
     )
 
     application.include_router(router)
+    static_root = Path(ROOT / "app" / "static")
+    application.mount("/static", StaticFiles(directory=static_root), name="static")
 
     @application.get("/", include_in_schema=False)
     async def landing_page() -> FileResponse:
-        return FileResponse(Path(ROOT / "app" / "static" / "index.html"))
+        return FileResponse(
+            static_root / "index.html",
+            headers={
+                "Content-Security-Policy": (
+                    "default-src 'self'; base-uri 'none'; object-src 'none'; "
+                    "frame-ancestors 'none'; form-action 'self'; "
+                    "script-src 'self'; style-src 'self'; img-src 'self' data:; "
+                    "connect-src 'self'; manifest-src 'self'; worker-src 'self'"
+                )
+            },
+        )
+
+    @application.get("/manifest.webmanifest", include_in_schema=False)
+    async def web_manifest() -> FileResponse:
+        return FileResponse(
+            static_root / "manifest.webmanifest",
+            media_type="application/manifest+json",
+        )
+
+    @application.get("/service-worker.js", include_in_schema=False)
+    async def service_worker() -> FileResponse:
+        return FileResponse(
+            static_root / "service-worker.js",
+            media_type="application/javascript",
+            headers={
+                "Cache-Control": "no-cache",
+                "Service-Worker-Allowed": "/",
+            },
+        )
 
     @application.middleware("http")
     async def access_log(request: Request, call_next):
