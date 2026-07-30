@@ -10,3 +10,10 @@ data/raw/
 dist/
 build/
 .DS_Store
+
+# Android
+android/.gradle/
+android/local.properties
+android/**/build/
+*.jks
+*.keystore

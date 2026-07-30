@@ -10,6 +10,13 @@ high-resolution Generic Sensor API where available, and falls back to
 `DeviceMotionEvent` on browsers such as mobile Safari. The installed app shell
 works offline; prediction still requires a network connection to the API.
 
+For higher-rate collection, the repository also includes a native Android app
+under [`android/`](android/). It requests 200 Hz directly through
+`SensorManager`, records monotonic nanosecond sensor timestamps, reports the
+actual achieved rate, writes the API-compatible CSV locally, and submits it to
+the production prediction endpoint. The app stops collection if it leaves the
+foreground and requires an explicit safely-stopped confirmation.
+
 > **Evidence boundary:** the supplied dataset contains only seven recordings:
 > one EV and three non-EVs for training, and three EVs for testing. The checked-in
 > evaluation verifies that this pipeline separates those recordings; it does not
@@ -127,6 +134,33 @@ uvicorn app.main:app --reload
 
 Open <http://localhost:8000>, <http://localhost:8000/docs>, or
 <http://localhost:8000/redoc>.
+
+### Native Android collector
+
+Requirements: JDK 17 and Android SDK platform 34.
+
+```bash
+cd android
+./gradlew testDebugUnitTest lintDebug assembleDebug
+```
+
+The installable development APK is written to
+`android/app/build/outputs/apk/debug/app-debug.apk`. The Android build is also
+published as a downloadable artifact by GitHub Actions. Exactly 200 Hz is
+requested using a 5,000 microsecond sampling period, but the UI always reports
+the achieved hardware rate because Android treats the requested period as a
+hint.
+
+Install the development build on a USB-connected phone with:
+
+```bash
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+For a signed release, provide `EVTRACE_KEYSTORE_PATH`,
+`EVTRACE_KEYSTORE_PASSWORD`, `EVTRACE_KEY_ALIAS`, and `EVTRACE_KEY_PASSWORD`,
+then run `./gradlew assembleRelease`. Signing credentials and keystores must
+remain outside the repository.
 
 ## Re-training
 
