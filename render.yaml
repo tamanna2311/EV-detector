@@ -15,7 +15,7 @@ services:
       - key: MAX_REQUEST_BYTES
         value: "134217728"
       - key: MAX_JSON_SAMPLES
-        value: "1000000"
+        value: "100000"
       - key: MAX_CSV_SAMPLES
         value: "1000000"
       - key: CORS_ORIGINS

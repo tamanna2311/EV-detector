@@ -39,7 +39,7 @@ class PredictionContext(BaseModel):
 class PredictionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    samples: list[AccelerometerSample] = Field(
+    data: list[AccelerometerSample] = Field(
         min_length=128, max_length=settings.max_json_samples
     )
     sample_rate_hz: float | None = Field(
@@ -53,19 +53,19 @@ class PredictionRequest(BaseModel):
     )
     context: PredictionContext = Field(default_factory=PredictionContext)
 
-    @field_validator("samples")
+    @field_validator("data")
     @classmethod
     def timestamps_are_all_or_none(
-        cls, samples: list[AccelerometerSample]
+        cls, data: list[AccelerometerSample]
     ) -> list[AccelerometerSample]:
-        present = [sample.timestamp is not None for sample in samples]
+        present = [sample.timestamp is not None for sample in data]
         if any(present) and not all(present):
             raise ValueError("timestamp must be provided for every sample or for none.")
-        return samples
+        return data
 
     @model_validator(mode="after")
     def sampling_information_is_present(self) -> PredictionRequest:
-        has_timestamps = bool(self.samples and self.samples[0].timestamp is not None)
+        has_timestamps = bool(self.data and self.data[0].timestamp is not None)
         if not has_timestamps and self.sample_rate_hz is None:
             raise ValueError(
                 "sample_rate_hz is required when samples do not include timestamps."

@@ -22,17 +22,6 @@ If each sample has a `timestamp`, `sample_rate_hz` may be omitted. Timestamps
 must be numeric seconds or `HH:MM:SS[.fraction]`, non-decreasing, and present on
 every sample.
 
-The JSON fields have distinct purposes:
-
-- `samples` is the measured three-axis acceleration. `x`, `y`, and `z` are in
-  metres per second squared and must each be between -200 and 200.
-- `sample_rate_hz` defines the time spacing when samples do not contain
-  timestamps. It is optional when every sample has a timestamp.
-- `timestamp` preserves actual device timing, including jitter and gaps, so it
-  is preferred when available.
-- `context.vehicle_stationary` may be `true` only when the complete recording
-  was collected while stopped. Otherwise the model estimates stop windows.
-
 ## CSV prediction
 
 `POST /api/v1/predict/csv` as multipart form data:
@@ -49,10 +38,8 @@ x,y,z,timestamp
 1.64895,4.86495,8.00805,07:03:40.02
 ```
 
-JSON and CSV requests both support up to 1,000,000 samples or 128 MB, whichever
-is reached first. CSV remains preferable for very large recordings because its
-server-side parser uses compact numeric arrays instead of one validated object
-per JSON sample.
+CSV uploads support up to 1,000,000 samples or 128 MB, whichever is reached
+first. JSON requests remain limited to 100,000 samples.
 
 ## Response
 

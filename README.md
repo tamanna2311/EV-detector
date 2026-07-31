@@ -10,13 +10,6 @@ high-resolution Generic Sensor API where available, and falls back to
 `DeviceMotionEvent` on browsers such as mobile Safari. The installed app shell
 works offline; prediction still requires a network connection to the API.
 
-For higher-rate collection, the repository also includes a native Android app
-under [`android/`](android/). It requests 200 Hz directly through
-`SensorManager`, records monotonic nanosecond sensor timestamps, reports the
-actual achieved rate, writes the API-compatible CSV locally, and submits it to
-the production prediction endpoint. The app stops collection if it leaves the
-foreground and requires an explicit safely-stopped confirmation.
-
 > **Evidence boundary:** the supplied dataset contains only seven recordings:
 > one EV and three non-EVs for training, and three EVs for testing. The checked-in
 > evaluation verifies that this pipeline separates those recordings; it does not
@@ -77,16 +70,13 @@ Use `-F 'sample_rate_hz=200'` when the CSV does not include `timestamp`.
 - Minimum sample rate: 50 Hz
 - Recommended sample rate: 100–200 Hz
 - Maximum CSV: 128 MB and 1,000,000 samples
-- Maximum JSON: 1,000,000 samples
+- Maximum JSON: 100,000 samples
 - Best recording: at least 30 seconds with one complete stop
 
-Both JSON and CSV accept up to 1,000,000 samples, subject to the shared 128 MB
-request limit. CSV is the more memory-efficient choice for very large
-recordings because it is parsed into compact numeric arrays; JSON is intended
-for direct application integration and uses the structured request contract
-shown above. The service splits timestamp gaps, infers the sample rate per
-continuous segment, rejects incompatible inputs, and returns `INCONCLUSIVE`
-rather than forcing a binary answer near the decision boundary.
+CSV uploads are streamed into compact numeric arrays instead of constructing a
+Python object for every row. The service splits timestamp gaps, infers the
+sample rate per continuous segment, rejects incompatible inputs, and returns
+`INCONCLUSIVE` rather than forcing a binary answer near the decision boundary.
 
 ## How the model maps to the paper
 
@@ -137,33 +127,6 @@ uvicorn app.main:app --reload
 
 Open <http://localhost:8000>, <http://localhost:8000/docs>, or
 <http://localhost:8000/redoc>.
-
-### Native Android collector
-
-Requirements: JDK 17 and Android SDK platform 36.
-
-```bash
-cd android
-./gradlew testDebugUnitTest lintDebug assembleDebug
-```
-
-The installable development APK is written to
-`android/app/build/outputs/apk/debug/app-debug.apk`. The Android build is also
-published as a downloadable artifact by GitHub Actions. Exactly 200 Hz is
-requested using a 5,000 microsecond sampling period, but the UI always reports
-the achieved hardware rate because Android treats the requested period as a
-hint.
-
-Install the development build on a USB-connected phone with:
-
-```bash
-adb install -r android/app/build/outputs/apk/debug/app-debug.apk
-```
-
-For a signed release, provide `EVTRACE_KEYSTORE_PATH`,
-`EVTRACE_KEYSTORE_PASSWORD`, `EVTRACE_KEY_ALIAS`, and `EVTRACE_KEY_PASSWORD`,
-then run `./gradlew assembleRelease`. Signing credentials and keystores must
-remain outside the repository.
 
 ## Re-training
 

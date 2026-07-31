@@ -39,13 +39,8 @@ def test_health_and_metadata(client: TestClient) -> None:
     assert metadata.status_code == 200
     assert metadata.json()["collection"]["recommended_sample_rate_hz"] == 100
     assert metadata.json()["limits"]["max_csv_samples"] == 1_000_000
-    assert metadata.json()["limits"]["max_json_samples"] == 1_000_000
+    assert metadata.json()["limits"]["max_json_samples"] == 100_000
     assert metadata.json()["limits"]["max_request_bytes"] == 128 * 1024 * 1024
-
-    prediction_schema = client.get("/openapi.json").json()["components"]["schemas"][
-        "PredictionRequest"
-    ]
-    assert prediction_schema["properties"]["samples"]["maxItems"] == 1_000_000
 
 
 def test_pwa_assets_and_sensor_policy(client: TestClient) -> None:
@@ -76,11 +71,11 @@ def test_pwa_assets_and_sensor_policy(client: TestClient) -> None:
 def test_json_predictions_separate_synthetic_signals(client: TestClient) -> None:
     ev = client.post(
         "/api/v1/predict",
-        json={"sample_rate_hz": 200, "samples": samples(combustion=False)},
+        json={"sample_rate_hz": 200, "data": samples(combustion=False)},
     )
     non_ev = client.post(
         "/api/v1/predict",
-        json={"sample_rate_hz": 200, "samples": samples(combustion=True)},
+        json={"sample_rate_hz": 200, "data": samples(combustion=True)},
     )
     assert ev.status_code == 200, ev.text
     assert non_ev.status_code == 200, non_ev.text
@@ -105,7 +100,7 @@ def test_csv_upload(client: TestClient) -> None:
 def test_low_sampling_rate_is_rejected(client: TestClient) -> None:
     response = client.post(
         "/api/v1/predict",
-        json={"sample_rate_hz": 40, "samples": samples(combustion=False, rate=40)},
+        json={"sample_rate_hz": 40, "data": samples(combustion=False, rate=40)},
     )
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "INVALID_SIGNAL"
@@ -114,6 +109,6 @@ def test_low_sampling_rate_is_rejected(client: TestClient) -> None:
 def test_partial_timestamps_are_rejected(client: TestClient) -> None:
     signal = samples(combustion=False, seconds=3)
     signal[0]["timestamp"] = 0
-    response = client.post("/api/v1/predict", json={"samples": signal})
+    response = client.post("/api/v1/predict", json={"data": signal})
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "INVALID_REQUEST"

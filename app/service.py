@@ -27,16 +27,16 @@ def predict_request(
     request_id: str,
 ) -> PredictionResponse:
     values = np.asarray(
-        [[sample.x, sample.y, sample.z] for sample in request.samples],
+        [[sample.x, sample.y, sample.z] for sample in request.data],
         dtype=np.float64,
     )
     timestamps = (
         normalize_timestamps(
             sample.timestamp
-            for sample in request.samples
+            for sample in request.data
             if sample.timestamp is not None
         )
-        if request.samples[0].timestamp is not None
+        if request.data[0].timestamp is not None
         else None
     )
     return predict_signal(
@@ -44,7 +44,7 @@ def predict_request(
         timestamps=timestamps,
         sample_rate_hz=request.sample_rate_hz,
         known_stationary=request.context.vehicle_stationary,
-        samples_received=len(request.samples),
+        samples_received=len(request.data),
         predictor=predictor,
         request_id=request_id,
     )
