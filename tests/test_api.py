@@ -112,3 +112,27 @@ def test_partial_timestamps_are_rejected(client: TestClient) -> None:
     response = client.post("/api/v1/predict", json={"data": signal})
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "INVALID_REQUEST"
+
+def test_epoch_millisecond_timestamps_are_accepted(
+    client: TestClient,
+) -> None:
+    rate = 200
+    signal = samples(combustion=False, seconds=5, rate=rate)
+    epoch_ms = 1_785_494_371_477
+
+    for index, sample in enumerate(signal):
+        sample["timestamp"] = epoch_ms + index * (1000 / rate)
+
+    response = client.post(
+        "/api/v1/predict",
+        json={"data": signal},
+    )
+
+    assert response.status_code == 200, response.text
+
+    body = response.json()
+    assert body["prediction"] == "EV"
+    assert body["analysis"]["samples_received"] == 1000
+
+    inferred_rate = body["analysis"]["estimated_sample_rates_hz"][0]
+    assert abs(inferred_rate - 200) < 0.1

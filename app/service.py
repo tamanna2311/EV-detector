@@ -39,6 +39,10 @@ def predict_request(
         if request.data[0].timestamp is not None
         else None
     )
+    if timestamps is not None and len(timestamps) >= 2:
+        # Detect JavaScript epoch-millisecond timestamps.
+        if timestamps[0] > 100_000_000_000:
+            timestamps = (timestamps - timestamps[0]) / 1000.0
     return predict_signal(
         values=values,
         timestamps=timestamps,
