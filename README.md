@@ -77,13 +77,16 @@ Use `-F 'sample_rate_hz=200'` when the CSV does not include `timestamp`.
 - Minimum sample rate: 50 Hz
 - Recommended sample rate: 100–200 Hz
 - Maximum CSV: 128 MB and 1,000,000 samples
-- Maximum JSON: 100,000 samples
+- Maximum JSON: 1,000,000 samples
 - Best recording: at least 30 seconds with one complete stop
 
-CSV uploads are streamed into compact numeric arrays instead of constructing a
-Python object for every row. The service splits timestamp gaps, infers the
-sample rate per continuous segment, rejects incompatible inputs, and returns
-`INCONCLUSIVE` rather than forcing a binary answer near the decision boundary.
+Both JSON and CSV accept up to 1,000,000 samples, subject to the shared 128 MB
+request limit. CSV is the more memory-efficient choice for very large
+recordings because it is parsed into compact numeric arrays; JSON is intended
+for direct application integration and uses the structured request contract
+shown above. The service splits timestamp gaps, infers the sample rate per
+continuous segment, rejects incompatible inputs, and returns `INCONCLUSIVE`
+rather than forcing a binary answer near the decision boundary.
 
 ## How the model maps to the paper
 
@@ -137,7 +140,7 @@ Open <http://localhost:8000>, <http://localhost:8000/docs>, or
 
 ### Native Android collector
 
-Requirements: JDK 17 and Android SDK platform 34.
+Requirements: JDK 17 and Android SDK platform 36.
 
 ```bash
 cd android

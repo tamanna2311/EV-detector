@@ -39,8 +39,13 @@ def test_health_and_metadata(client: TestClient) -> None:
     assert metadata.status_code == 200
     assert metadata.json()["collection"]["recommended_sample_rate_hz"] == 100
     assert metadata.json()["limits"]["max_csv_samples"] == 1_000_000
-    assert metadata.json()["limits"]["max_json_samples"] == 100_000
+    assert metadata.json()["limits"]["max_json_samples"] == 1_000_000
     assert metadata.json()["limits"]["max_request_bytes"] == 128 * 1024 * 1024
+
+    prediction_schema = client.get("/openapi.json").json()["components"]["schemas"][
+        "PredictionRequest"
+    ]
+    assert prediction_schema["properties"]["samples"]["maxItems"] == 1_000_000
 
 
 def test_pwa_assets_and_sensor_policy(client: TestClient) -> None:
