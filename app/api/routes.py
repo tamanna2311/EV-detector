@@ -95,8 +95,9 @@ async def metadata(request: Request) -> dict:
     operation_id="predict_from_json",
     summary="Classify accelerometer samples",
     description=(
-        "Submit x/y/z acceleration in m/s². Include timestamps on every sample, "
-        "or provide sample_rate_hz."
+        "Submit 128 to 1,000,000 x/y/z acceleration samples in m/s² as JSON. "
+        "Include timestamps on every sample, or provide sample_rate_hz. "
+        "The complete request body must also fit within the configured byte limit."
     ),
     tags=["Prediction"],
 )

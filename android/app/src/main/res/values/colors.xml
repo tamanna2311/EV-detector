@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#020706</color>
+    <color name="console">#020906</color>
+    <color name="neon_green">#19F58A</color>
+    <color name="neon_green_dark">#079D58</color>
+    <color name="text_primary">#F4FFF8</color>
+    <color name="text_secondary">#91A79C</color>
+    <color name="text_tertiary">#60786C</color>
+    <color name="button_text">#011208</color>
+    <color name="stop_text">#FF8A94</color>
+    <color name="progress_track">#10251C</color>
+</resources>
